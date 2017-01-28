@@ -9,19 +9,13 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Gary Fleshman"]
   spec.email         = ["gfleshman@newforge-tech.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = "JSON Web Token (JWT) for Ruby using NaCl cryptography"
+  spec.description   = <<-HERE
+    A Ruby JSON Web Token implementation using NaCl Ed25519 digital signatures from the
+    state-of-the-art networking and cryptography library by Daniel J. Bernstein.
+  HERE
+  spec.homepage      = "https://github.com/garyf/jwt_nacl"
   spec.license       = "MIT"
-
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise "RubyGems 2.0 or newer is required to protect against " \
-      "public gem pushes."
-  end
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
@@ -29,8 +23,16 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+  spec.required_ruby_version = ">= 2.2.6"
+
+  spec.add_runtime_dependency "rbnacl", "~> 4.0"
+  spec.add_runtime_dependency "rbnacl-libsodium", "~> 1.0"
 
   spec.add_development_dependency "bundler", "~> 1.13"
-  spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "minitest", "~> 5.0"
+  spec.add_development_dependency "minitest-reporters", "~> 1.1"
+  spec.add_development_dependency "rake", "~> 12.0"
+  spec.add_development_dependency "simplecov", "~> 0.13"
+  spec.add_development_dependency "yard", "~> 0.9"
+  spec.add_development_dependency "wwtd", "~> 1.3"
 end
