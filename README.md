@@ -1,8 +1,9 @@
-# JwtNacl
+# JWT NaCl [![travis][ci_img]][travis] [![yard docs][yd_img]][yard_docs] [![code climate][cc_img]][code_climate]
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/jwt_nacl`. To experiment with that code, run `bin/console` for an interactive prompt.
+## A JSON Web Token (JWT) implementation using NaCl cryptography
 
-TODO: Delete this and the text above, and describe your gem
+### Description
+A Ruby JSON Web Token implementation using Edwards-curve Digital Signature Algorithm ([EdDSA][eddsa]) [curve Ed25519 digital signatures][ed25519] from the state-of-the-art NaCl [Networking and Cryptography library][nacl] by [Daniel J. Bernstein][bernstein].
 
 ## Installation
 
@@ -16,26 +17,99 @@ And then execute:
 
     $ bundle
 
-Or install it yourself as:
+Or install it directly as:
 
     $ gem install jwt_nacl
 
+### Philosophy & Design Goals
+* Convention over configuration
+* Use of state-of-the-art cryptography, including EdDSA Curve25519 elliptic curves
+* Minimal API surface area
+* Thorough test coverage
+* Modularity for comprehension and extensibility
+
+### Why NaCl?
+Cryptography typically exposes a high degree of complexity, due to many possible configuration decisions. One poor choice could result in an insecure system.
+
+NaCl is different. NaCl provides an expertly-assembled, high-level cryptographic API with the correct configuration already built-in. See [RbNaCl][rbnacl] for more rationale.
+
+For a more conventional JWT implementation, please refer to the related [json_web_token](https://github.com/garyf/json_web_token) gem.
+
 ## Usage
 
-TODO: Write usage instructions here
+### JWT.sign(claims, private_key)
 
-## Development
+Returns a 3 element hash that includes:
+* a JSON Web Token
+* the private key
+* the public key
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+`claims` (required) hash (non-empty)
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+`private_key` (optional) string, 32 random byte signing key
 
-## Contributing
+Example
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/jwt_nacl.
+```ruby
+require 'jwt_nacl'
 
+claims = {iss: "mike", exp: 1300819380, :"http://example.com/is_root" => false}
 
-## License
+private_hex = "d2c5c54bc205266f12a8a21809aa2989536959f666a5d68710e6fab94674041a"
+private_key = [private_hex].pack("H*")
 
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+public_hex = "1e10af4b79b8d005c8b4237161f1350844b2e6c1a8d6aa4817151c04a2751731"
+public_key = [public_hex].pack("H*")
 
+# Sign with an elliptical curve Ed25519 digital signature
+jwt = JWT.sign(claims, private_key)
+#=> {
+  jwt: "eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiSldUIn0.eyJpc3MiOiJtaWtlIiwiZXhwIjoxMzAwODE5MzgwLCJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6ZmFsc2V9.f2y6Sax9eK9M3JiFCt4ZfzzOL56SWNhydHpPPIoVkm21D3_bJq5DmFLgH8ee2OlzSlZMoq009jLSg6AC0mn4DA",
+  private_key: private_key,
+  public_key: public_key
+}
+```
+
+### JWT.verify(jwt, public_key)
+
+Returns a hash:
+* \{claims: < JWT claims set >\}, if the digital signature, is verified
+* \{error: "invalid"\}, otherwise
+
+`jwt` (required) is a JSON web token string
+
+`public_key` (required) string, 32 byte verifying key
+
+Example
+
+```ruby
+require 'jwt_nacl'
+
+jwt = "eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiSldUIn0.eyJpc3MiOiJtaWtlIiwiZXhwIjoxMzAwODE5MzgwLCJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6ZmFsc2V9.f2y6Sax9eK9M3JiFCt4ZfzzOL56SWNhydHpPPIoVkm21D3_bJq5DmFLgH8ee2OlzSlZMoq009jLSg6AC0mn4DA"
+
+hex = "1e10af4b79b8d005c8b4237161f1350844b2e6c1a8d6aa4817151c04a2751731"
+public_key = [hex].pack("H*")
+
+# Verify with an elliptical curve Ed25519 public key
+JWT.verify(jwt, public_key)
+#=> {claims: {iss: "mike", exp: 1300819380, :"http://example.com/is_root" => false}}
+```
+
+### Supported encryption algorithm
+Ed25519, Edwards-curve Digital Signature Algorithm (EdDSA) using Curve25519
+
+### Supported Ruby versions
+Ruby 2.2.6 and up
+
+[eddsa]: https://en.wikipedia.org/wiki/EdDSA
+[ed25519]: http://ed25519.cr.yp.to/
+[nacl]: http://nacl.cr.yp.to/
+[bernstein]: https://en.wikipedia.org/wiki/Daniel_J._Bernstein
+
+[rbnacl]: https://github.com/cryptosphere/rbnacl/blob/master/README.md
+[travis]: https://travis-ci.org/garyf/jwt_nacl
+[ci_img]: https://travis-ci.org/garyf/jwt_nacl.svg?branch=master
+[yard_docs]: http://www.rubydoc.info/github/garyf/jwt_nacl
+[yd_img]: http://img.shields.io/badge/yard-docs-blue.svg
+[code_climate]: https://codeclimate.com/github/garyf/jwt_nacl
+[cc_img]: https://codeclimate.com/github/garyf/jwt_nacl/badges/gpa.svg
