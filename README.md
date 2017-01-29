@@ -39,7 +39,7 @@ For a more conventional JWT implementation, please refer to the related [json_we
 
 ### JWT.sign(claims, private_key)
 
-Returns a 3 element hash that includes:
+#### Returns a 3 element hash that includes:
 * a JSON Web Token
 * the private key
 * the public key
@@ -72,8 +72,8 @@ jwt = JWT.sign(claims, private_key)
 
 ### JWT.verify(jwt, public_key)
 
-Returns a hash:
-* \{claims: < JWT claims set >\}, if the digital signature, is verified
+#### Returns a hash:
+* \{claims: < JWT claims set >\}, if the digital signature is verified
 * \{error: "invalid"\}, otherwise
 
 `jwt` (required) is a JSON web token string
@@ -92,7 +92,9 @@ public_key = [hex].pack("H*")
 
 # Verify with an elliptical curve Ed25519 public key
 JWT.verify(jwt, public_key)
-#=> {claims: {iss: "mike", exp: 1300819380, :"http://example.com/is_root" => false}}
+#=> {
+  claims: {iss: "mike", exp: 1300819380, :"http://example.com/is_root" => false}
+}
 ```
 
 ### Supported encryption algorithm
